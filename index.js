@@ -8,10 +8,13 @@ const pusher = new PushBullet('o.tZ74a8iQR3IgMhfuGIwpZGbf1lez9IWP');
 let previous = '';
 
 function search() {
-  request(process.env.URL, (error, response, body) => {
-    if (error) console.warn(error);
-    extract(body);
-  });
+  request(
+    process.env.URL || 'https://www.blocket.se/hela_sverige',
+    (error, response, body) => {
+      if (error) console.warn(error);
+      extract(body);
+    },
+  );
 }
 
 function extract(html) {
