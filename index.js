@@ -1,11 +1,12 @@
 require('dotenv').config();
 
+const http = require('http');
 const request = require('request');
 const PushBullet = require('pushbullet');
 const { parse } = require('node-html-parser');
 const pusher = new PushBullet('o.tZ74a8iQR3IgMhfuGIwpZGbf1lez9IWP');
 
-let previous = '';
+let previous = {};
 
 function search() {
   console.debug(`Searching on ${process.env.URL}`);
@@ -21,11 +22,15 @@ function search() {
 function extract(html) {
   const root = parse(html);
   const item = root.querySelector('#item_list .item_row_first');
-  if (item.id !== previous) {
-    console.debug(`New top item is ${item.id}, previous was ${previous}`);
-    previous = item.id;
+  if (item.id !== previous.id) {
+    console.debug(`New top item is ${item.id}, previous was ${previous.id}`);
     const content = item.querySelector('.media-heading a');
-    notify(content.text, content.attributes.href);
+    previous = {
+      id: item.id,
+      title: content.text,
+      link: content.attributes.href,
+    };
+    notify(previous.title, previous.link);
   }
 }
 
@@ -38,6 +43,16 @@ function notify(title, link) {
 
 setInterval(() => {
   search();
-}, 60000);
+}, 60 * 1000);
 
 search();
+
+http
+  .createServer(function(req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.write(
+      `New top item is <a href="${previous.link}">${previous.title}</a>`,
+    );
+    res.end();
+  })
+  .listen(8080);
