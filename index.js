@@ -4,7 +4,7 @@ const http = require('http');
 const request = require('request');
 const PushBullet = require('pushbullet');
 const { parse } = require('node-html-parser');
-const pusher = new PushBullet('o.tZ74a8iQR3IgMhfuGIwpZGbf1lez9IWP');
+const pusher = new PushBullet(process.env.PUSHBULLET);
 
 let previous = {};
 
